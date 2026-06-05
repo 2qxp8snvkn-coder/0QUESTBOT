@@ -2,14 +2,22 @@
 
 Một bot Discord viết bằng Python dùng để quản lý và tự động nhận, hoàn thành các nhiệm vụ (Quests) của Discord ở chế độ chạy ngầm bất đồng bộ. 
 
-Điểm đặc biệt là dự án hỗ trợ **nhiều người dùng cùng lúc**, cho phép bạn đăng ký và quản lý token cá nhân của mình trực tiếp thông qua lệnh Slash `/login` trong tin nhắn riêng (DM) với bot thay vì phải lưu cố định vào cấu hình máy chủ.
-
 ---
 
-> [!WARNING]
-> **Tuyên bố miễn trừ trách nhiệm (Discord ToS)**
-> Việc sử dụng token tài khoản cá nhân (User Token) để tự động hóa hoạt động (self-botting) vi phạm Điều khoản dịch vụ của Discord và có thể dẫn đến việc tài khoản của bạn bị cấm.
-> Để đảm bảo an toàn, ứng dụng bot này chạy như một Bot chính thức (Bot Token) và chỉ sử dụng User Token để gửi yêu cầu hoàn thành nhiệm vụ chạy ngầm. **Tuyệt đối không chạy lệnh `/login` ở kênh chat công khai của máy chủ.**
+> [!CAUTION]
+> ### ⚠️ TUYÊN BỐ MIỄN TRỪ TRÁCH NHIỆM & MỤC ĐÍCH HỌC TẬP (DISCLAIMER)
+>
+> 1. **Mục đích giáo dục và học tập**: 
+>    Dự án này được phát triển hoàn toàn vì **mục đích học tập, nghiên cứu lập trình** (cụ thể là tìm hiểu về giao thức truyền tải HTTP API, lập trình bất đồng bộ `asyncio`/`aiohttp` trong Python, và cách phát triển ứng dụng Bot Discord). 
+>
+> 2. **Vi phạm Điều khoản Dịch vụ (Discord ToS)**: 
+>    Việc sử dụng mã thông báo tài khoản cá nhân (User Token) để tự động hóa hành vi (self-botting) vi phạm nghiêm trọng Điều khoản dịch vụ của Discord. Hành động này có thể khiến tài khoản của người sử dụng **bị khóa vĩnh viễn (Terminated)**.
+>
+> 3. **Tuyên bố miễn trừ trách nhiệm hoàn toàn**: 
+>    **Tác giả và những người đóng góp cho dự án này hoàn toàn MIỄN TRỪ MỌI TRÁCH NHIỆM pháp lý và dân sự.** 
+>    - Chúng tôi không chịu trách nhiệm cho bất kỳ tổn thất, thiệt hại, hoặc việc tài khoản của bạn bị khóa/cấm khi sử dụng phần mềm này.
+>    - Người dùng tự chịu hoàn toàn 100% rủi ro khi quyết định chạy thử nghiệm dự án này trên tài khoản cá nhân.
+>    - Phần mềm này được cung cấp theo nguyên tắc **"AS IS"** (nguyên trạng), không đi kèm bất kỳ chế độ bảo hành hay cam kết nào.
 
 ---
 
