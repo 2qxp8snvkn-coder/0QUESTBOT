@@ -117,6 +117,45 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="/help | Quest Auto-Completer"))
 
 
+# ── Modals ────────────────────────────────────────────────────────────────────
+class LoginModal(discord.ui.Modal, title="Đăng nhập tài khoản làm Quest"):
+    token_input = discord.ui.TextInput(
+        label="Discord User Token",
+        placeholder="Dán token cá nhân của bạn vào đây...",
+        style=discord.TextStyle.long,
+        required=True,
+        min_length=30
+    )
+
+    async def on_submit(self, interaction: discord.Interaction):
+        token = self.token_input.value.strip()
+        await interaction.response.defer(ephemeral=True)
+        
+        try:
+            build_number = await main.fetch_latest_build_number()
+            api = main.DiscordAPI(token, build_number)
+            
+            # Verify token by querying user info
+            r = await api.get("/users/@me")
+            if r.status != 200:
+                await interaction.followup.send("❌ Token không hợp lệ. Vui lòng kiểm tra lại tài khoản hoặc token của bạn!", ephemeral=True)
+                await api.close()
+                return
+                
+            user_data = await r.json()
+            username = user_data.get("username", "Unknown")
+            await api.close()
+            
+            # Save token
+            save_token(interaction.user.id, token)
+            await interaction.followup.send(
+                content=f"✅ Đăng nhập thành công!\n👤 Tài khoản liên kết: **@{username}**\nBây giờ bạn có thể dùng lệnh `/start` hoặc `/status`.",
+                ephemeral=True
+            )
+        except Exception as e:
+            await interaction.followup.send(f"❌ Có lỗi xảy ra trong quá trình đăng nhập: `{e}`", ephemeral=True)
+
+
 # ── Slash Commands ─────────────────────────────────────────────────────────────
 @bot.tree.command(name="help", description="Hiển thị hướng dẫn sử dụng bot.")
 async def help_command(interaction: discord.Interaction):
@@ -125,7 +164,7 @@ async def help_command(interaction: discord.Interaction):
         description="Quản lý việc tự động hoàn thành Discord Quests bằng lệnh Slash.",
         color=discord.Color.cyan()
     )
-    embed.add_field(name="`/login <token>`", value="Đăng nhập tài khoản làm nhiệm vụ của bạn (Chỉ hoạt động trong tin nhắn riêng - DM).", inline=False)
+    embed.add_field(name="`/login`", value="Đăng nhập tài khoản làm nhiệm vụ của bạn (Mở popup nhập token bảo mật).", inline=False)
     embed.add_field(name="`/logout`", value="Đăng xuất và xóa token của bạn khỏi hệ thống.", inline=False)
     embed.add_field(name="`/status`", value="Xem danh sách quest hiện tại và tiến độ hoàn thành.", inline=False)
     embed.add_field(name="`/start`", value="Bắt đầu chạy quét/hoàn thành quest tự động chạy ngầm.", inline=False)
@@ -136,42 +175,10 @@ async def help_command(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-@bot.tree.command(name="login", description="Đăng nhập tài khoản cá nhân để tự động làm quest (Chỉ hoạt động trong DM).")
-@app_commands.describe(token="Token tài khoản cá nhân (User Token) của bạn")
-async def login(interaction: discord.Interaction, token: str):
-    # Security check: Ensure it is run in DMs
-    if interaction.guild is not None:
-        await interaction.response.send_message(
-            content="⚠️ **Bảo mật**: Vui lòng nhắn tin riêng (DM) trực tiếp cho bot lệnh `/login` để tránh lộ token của bạn ở kênh công khai!",
-            ephemeral=True
-        )
-        return
-
-    await interaction.response.defer(ephemeral=True)
-
-    try:
-        build_number = await main.fetch_latest_build_number()
-        api = main.DiscordAPI(token, build_number)
-        
-        # Verify token by querying user info
-        r = await api.get("/users/@me")
-        if r.status != 200:
-            await interaction.followup.send("❌ Token không hợp lệ. Vui lòng kiểm tra lại tài khoản hoặc token của bạn!", ephemeral=True)
-            await api.close()
-            return
-            
-        user_data = await r.json()
-        username = user_data.get("username", "Unknown")
-        await api.close()
-        
-        # Save token
-        save_token(interaction.user.id, token)
-        await interaction.followup.send(
-            content=f"✅ Đăng nhập thành công!\n👤 Tài khoản liên kết: **@{username}**\nBây giờ bạn có thể dùng lệnh `/start` hoặc `/status`.",
-            ephemeral=True
-        )
-    except Exception as e:
-        await interaction.followup.send(f"❌ Có lỗi xảy ra trong quá trình đăng nhập: `{e}`", ephemeral=True)
+@bot.tree.command(name="login", description="Đăng nhập tài khoản cá nhân để tự động làm quest (Mở popup điền bảo mật).")
+async def login(interaction: discord.Interaction):
+    # Sends a popup modal to input the token securely (arguments are not shown in chat)
+    await interaction.response.send_modal(LoginModal())
 
 
 @bot.tree.command(name="logout", description="Đăng xuất và xóa token của bạn khỏi hệ thống.")

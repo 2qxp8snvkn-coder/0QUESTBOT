@@ -2,6 +2,8 @@
 
 Một bot Discord viết bằng Python dùng để quản lý và tự động nhận, hoàn thành các nhiệm vụ (Quests) của Discord ở chế độ chạy ngầm bất đồng bộ. 
 
+Điểm đặc biệt là dự án hỗ trợ **nhiều người dùng cùng lúc**, cho phép bạn đăng ký và quản lý token cá nhân của mình trực tiếp thông qua giao diện **Popup Modal** bảo mật bằng lệnh Slash `/login` ở bất kỳ đâu (kênh chat hoặc DM).
+
 ---
 
 > [!CAUTION]
@@ -13,7 +15,7 @@ Một bot Discord viết bằng Python dùng để quản lý và tự động n
 > 2. **Vi phạm Điều khoản Dịch vụ (Discord ToS)**: 
 >    Việc sử dụng mã thông báo tài khoản cá nhân (User Token) để tự động hóa hành vi (self-botting) vi phạm nghiêm trọng Điều khoản dịch vụ của Discord. Hành động này có thể khiến tài khoản của người sử dụng **bị khóa vĩnh viễn (Terminated)**.
 >
-> 3. **Tuyên bố miễn trừ trách nhiệm hoàn toàn**: 
+> 3. **Tuyên bổ miễn trừ trách nhiệm hoàn toàn**: 
 >    **Tác giả và những người đóng góp cho dự án này hoàn toàn MIỄN TRỪ MỌI TRÁCH NHIỆM pháp lý và dân sự.** 
 >    - Chúng tôi không chịu trách nhiệm cho bất kỳ tổn thất, thiệt hại, hoặc việc tài khoản của bạn bị khóa/cấm khi sử dụng phần mềm này.
 >    - Người dùng tự chịu hoàn toàn 100% rủi ro khi quyết định chạy thử nghiệm dự án này trên tài khoản cá nhân.
@@ -23,8 +25,10 @@ Một bot Discord viết bằng Python dùng để quản lý và tự động n
 
 ## Tính Năng
 - **Lệnh Slash (Slash Commands)**: Tương tác hiện đại bằng giao diện lệnh `/` của Discord.
-- **Xác thực động và bảo mật**: Nhập token tài khoản cá nhân trực tiếp qua lệnh `/login` ẩn danh (ephemeral) chỉ gửi riêng đến bot.
-- **Tự động chặn lộ token**: Bot kiểm tra và chặn ngay lập tức nếu người dùng cố chạy lệnh `/login` trong kênh công khai của máy chủ.
+- **Xác thực bảo mật tuyệt đối**: 
+  - Lệnh `/login` giờ đây **không nhận trực tiếp đối số trong khung chat**. 
+  - Thay vào đó, bot sẽ mở một cửa sổ **Popup Modal** để bạn dán Token vào. 
+  - Điều này giúp bạn có thể **dán token trực tiếp ở bất cứ kênh chat nào trong server mà KHÔNG lo người khác nhìn thấy token** (Discord không hiển thị nội dung nhập trong Modal cho người khác và phản hồi xác nhận sẽ là tin nhắn ẩn chỉ một mình bạn thấy).
 - **Hỗ trợ đa người dùng**: Lưu trữ cục bộ thông tin xác thực động qua `tokens.json`, cho phép nhiều tài khoản chạy song song cùng lúc.
 - Hỗ trợ làm các nhiệm vụ: xem video (`WATCH_VIDEO`), chơi game trên máy tính (`PLAY_ON_DESKTOP`, `PLAY_ACTIVITY`), stream game (`STREAM_ON_DESKTOP`).
 - Chạy ngầm hiệu quả mà không làm đơ bot nhờ cơ chế bất đồng bộ (`asyncio` + `aiohttp`).
@@ -69,14 +73,12 @@ Sau khi bot trực tuyến, nó sẽ tự động đồng bộ hóa cây lệnh 
 
 ## Cách Hoạt Động Trên Discord
 
-### 1. Đăng ký Token Tài Khoản Cá Nhân (Chỉ hoạt động trong DM)
-- Tìm Bot của bạn trong danh sách thành viên máy chủ, nhấp chuột phải chọn **Message** để nhắn tin riêng.
-- Gõ `/login` và điền tham số `token` bằng Token cá nhân của bạn:
-  ```text
-  /login token: <User_Token_Của_Bạn>
-  ```
-- Bot sẽ xác thực và liên kết tài khoản (ví dụ: `👤 Tài khoản liên kết: @username`).
-- *Nếu bạn chạy lệnh này ở kênh công khai, bot sẽ chặn và báo lỗi dạng tin nhắn ẩn (chỉ bạn nhìn thấy) để ngăn token của bạn hiển thị với người khác.*
+### 1. Đăng ký Token Tài Khoản Cá Nhân (Hoạt động ở mọi nơi)
+- Gõ `/login` trong bất kỳ kênh chat nào của server hoặc trong DM với Bot.
+- Nhấn Enter gửi lệnh. Lúc này, một bảng **Popup Modal** có tiêu đề *"Đăng nhập tài khoản làm Quest"* sẽ xuất hiện trên màn hình của riêng bạn.
+- Dán Token cá nhân của bạn vào ô *"Discord User Token"* và nhấn nút gửi (**Submit**).
+- Bot sẽ xác thực ngầm và báo đăng nhập thành công (tin nhắn phản hồi ẩn danh - Ephemeral, chỉ mình bạn xem được).
+- *Phương thức này đảm bảo 100% token của bạn được truyền đi an toàn và ẩn hoàn toàn khỏi mắt của các thành viên khác trong server.*
 
 ### 2. Các Lệnh Điều Khiển (Gõ `/` trên Discord)
 Tất cả kết quả của các lệnh này đều trả về dưới dạng **tin nhắn ẩn danh (ephemeral)**, nghĩa là chỉ có duy nhất bạn có thể đọc được kết quả phản hồi của lệnh đó trong kênh.
