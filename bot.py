@@ -147,11 +147,18 @@ async def on_ready():
         with open(DB_FILE, "w") as f:
             json.dump({}, f)
             
-    # Sync command tree with Discord globally
+    # Sync command tree with Discord
     print("Syncing slash commands...")
     try:
+        # Sync globally (takes up to 1 hour to propagate)
         synced = await bot.tree.sync()
         print(f"Successfully synced {len(synced)} slash command(s) globally.")
+        
+        # Sync instantly to all currently joined guilds (takes less than 1 second to appear)
+        for guild in bot.guilds:
+            bot.tree.copy_global_to(guild=guild)
+            synced_guild = await bot.tree.sync(guild=guild)
+            print(f"Instantly synced {len(synced_guild)} command(s) to guild: {guild.name} (ID: {guild.id})")
     except Exception as e:
         print(f"Error syncing commands: {e}")
             
