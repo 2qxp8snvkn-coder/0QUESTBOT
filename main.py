@@ -740,4 +740,9 @@ class QuestAutocompleter:
                 if not self.running:
                     break
                 await asyncio.sleep(1)
-                
+                from bot import start_bot
+
+if __name__ == "__main__":
+    keep_alive()
+    start_bot()
+    
