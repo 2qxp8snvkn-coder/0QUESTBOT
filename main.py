@@ -15,6 +15,35 @@ import base64
 import traceback
 from datetime import datetime, timezone
 from typing import Optional
+from threading import Thread
+from flask import Flask
+
+# 1. Create a tiny Flask app
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is alive!"
+
+def run_web_server():
+    # Render passes the port dynamically via an environment variable
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
+
+# 2. Start the web server in a background thread so it doesn't block your bot
+def keep_alive():
+    t = Thread(target=run_web_server)
+    t.start()
+
+if __name__ == "__main__":
+    # Start the web server
+    keep_alive()
+    
+    # --- YOUR BOT CODE STARTS HERE ---
+    # (Put whatever code your bot uses to start right here)
+    print("Starting bot...")
+
+
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 API_BASE = "https://discord.com/api/v9"
@@ -711,32 +740,4 @@ class QuestAutocompleter:
                 if not self.running:
                     break
                 await asyncio.sleep(1)
-                import os
-from threading import Thread
-from flask import Flask
-
-# 1. Create a tiny Flask app
-app = Flask('')
-
-@app.route('/')
-def home():
-    return "Bot is alive!"
-
-def run_web_server():
-    # Render passes the port dynamically via an environment variable
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
-
-# 2. Start the web server in a background thread so it doesn't block your bot
-def keep_alive():
-    t = Thread(target=run_web_server)
-    t.start()
-
-if __name__ == "__main__":
-    # Start the web server
-    keep_alive()
-    
-    # --- YOUR BOT CODE STARTS HERE ---
-    # (Put whatever code your bot uses to start right here)
-    print("Starting bot...")
-
+                
